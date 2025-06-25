@@ -5,20 +5,62 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Raspá y Ganá</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #222, #000);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .card {
+      background: #333;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      max-width: 400px;
+      width: 90%;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: gold;
+    }
+    .status {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      color: #0f0;
+    }
+    .error {
+      color: #f66;
+    }
+  </style>
 </head>
 <body>
-  <h1>Raspá y Ganá</h1>
-  <p id="status">Cargando...</p>
+  <div class="card">
+    <h1>🎉 Raspá y Ganá 🎉</h1>
+    <p id="status">Cargando...</p>
+  </div>
+
   <script>
     const token = new URLSearchParams(window.location.search).get("token");
+    const statusEl = document.getElementById("status");
+
     if (!token) {
-      document.getElementById("status").textContent = "Link inválido";
+      statusEl.textContent = "Link inválido";
+      statusEl.classList.add("error");
     } else {
       fetch("tokens.json")
         .then(res => res.json())
         .then(tokens => {
           if (!(token in tokens)) {
-            document.getElementById("status").textContent = "Token no válido";
+            statusEl.textContent = "Token no válido";
+            statusEl.classList.add("error");
             return;
           }
           const lastUsed = tokens[token].lastUsed;
@@ -26,14 +68,17 @@
             const diff = Date.now() - new Date(lastUsed).getTime();
             if (diff < 2 * 24 * 60 * 60 * 1000) {
               const hrs = Math.ceil((2 * 24 * 60 * 60 * 1000 - diff) / 3600000);
-              document.getElementById("status").textContent = "Ya jugaste, volvé en " + hrs + " horas.";
+              statusEl.textContent = "⏳ Ya jugaste, volvé en " + hrs + " horas.";
+              statusEl.classList.add("error");
               return;
             }
           }
-          document.getElementById("status").textContent = "🎉 ¡Podés jugar!";
+          statusEl.textContent = "🎁 ¡Podés jugar! Raspá la tarjeta...";
+          statusEl.classList.remove("error");
         })
         .catch(() => {
-          document.getElementById("status").textContent = "Error al cargar datos.";
+          statusEl.textContent = "Error al cargar datos.";
+          statusEl.classList.add("error");
         });
     }
   </script>
