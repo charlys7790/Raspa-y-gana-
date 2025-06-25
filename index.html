@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Raspá y Ganá</title>
+</head>
+<body>
+  <h1>Raspá y Ganá</h1>
+  <p id="status">Cargando...</p>
+  <script>
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (!token) {
+      document.getElementById("status").textContent = "Link inválido";
+    } else {
+      fetch("tokens.json")
+        .then(res => res.json())
+        .then(tokens => {
+          if (!(token in tokens)) {
+            document.getElementById("status").textContent = "Token no válido";
+            return;
+          }
+          const lastUsed = tokens[token].lastUsed;
+          if (lastUsed) {
+            const diff = Date.now() - new Date(lastUsed).getTime();
+            if (diff < 2 * 24 * 60 * 60 * 1000) {
+              const hrs = Math.ceil((2 * 24 * 60 * 60 * 1000 - diff) / 3600000);
+              document.getElementById("status").textContent = "Ya jugaste, volvé en " + hrs + " horas.";
+              return;
+            }
+          }
+          document.getElementById("status").textContent = "🎉 ¡Podés jugar!";
+        })
+        .catch(() => {
+          document.getElementById("status").textContent = "Error al cargar datos.";
+        });
+    }
+  </script>
+</body>
+</html>
